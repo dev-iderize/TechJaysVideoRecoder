@@ -73,5 +73,7 @@ dependencies {
 
     // CameraX View class
     implementation 'androidx.camera:camera-view:1.0.0-alpha25'
+
     implementation 'com.sfyc.ctpv:library:1.1.3'
+    implementation 'com.github.AnilFurkanOkcun:UWMediaPicker-Android:1.3.3'
 }

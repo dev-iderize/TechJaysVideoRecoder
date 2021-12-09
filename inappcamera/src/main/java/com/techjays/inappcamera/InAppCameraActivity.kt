@@ -2,12 +2,16 @@ package com.techjays.inappcamera
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.ContentUris
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Bundle
-import android.os.Environment
-import android.os.Handler
-import android.os.Looper
+import android.graphics.Bitmap
+import android.media.ThumbnailUtils
+import android.net.Uri
+import android.os.*
+import android.provider.DocumentsContract
+import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -19,6 +23,8 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.LifecycleOwner
+import com.anilokcun.uwmediapicker.UwMediaPicker
+import com.anilokcun.uwmediapicker.model.UwMediaPickerMediaModel
 import com.google.common.util.concurrent.ListenableFuture
 import com.techjays.inappcamera.databinding.ActivityInAppCameraBinding
 import java.io.File
@@ -28,6 +34,15 @@ import java.util.concurrent.Executor
 
 class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraXConfig.Provider {
     lateinit var mContentViewBinding: ActivityInAppCameraBinding
+    private var mVideoUri: Uri? = null
+    var ACTION_TAKE_VIDEO = 99
+    private var mPermission =
+        arrayOf(
+            Manifest.permission.CAMERA,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.RECORD_AUDIO
+        )
 
     private var cameraProviderFuture: ListenableFuture<ProcessCameraProvider>? = null
 
@@ -49,6 +64,7 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
                 this,
                 R.layout.activity_in_app_camera
             ) as ActivityInAppCameraBinding
+        PermissionCheckers().askAllPermissions(this, mPermission)
         init()
     }
 
@@ -119,11 +135,46 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
         /* mContentViewBinding.bCapture.setOnClickListener {
              capturePhoto()
          }*/
+
+        mContentViewBinding.add.setOnClickListener {
+            if (PermissionCheckers().checkAllPermission(this, mPermission))
+                UwMediaPicker
+                    .with(this)                    // Activity or Fragment
+                    .setGalleryMode(UwMediaPicker.GalleryMode.VideoGallery) // GalleryMode: ImageGallery/VideoGallery/ImageAndVideoGallery, default is ImageGallery
+                    .setGridColumnCount(4)                                  // Grid column count, default is 3
+                    .setMaxSelectableMediaCount(1)                         // Maximum selectable media count, default is null which means infinite
+                    .setLightStatusBar(true)                           // Is llight status bar enable, default is true
+                    .enableImageCompression(true)                // Is image compression enable, default is false
+                    .setCompressionMaxWidth(1280F)                // Compressed image's max width px, default is 1280
+                    .setCompressionMaxHeight(720F)                // Compressed image's max height px, default is 720
+                    .setCompressFormat(Bitmap.CompressFormat.JPEG)        // Compressed image's format, default is JPEG
+                    .setCompressionQuality(85)                // Image compression quality, default is 85
+                    .setCompressedFileDestinationPath(
+                        "${
+                            this.getExternalFilesDir(null)!!.path
+                        }/Pictures"
+                    )    // Compressed image file's destination path, default is "${application.getExternalFilesDir(null).path}/Pictures"
+                    .setCancelCallback { }                    // Will be called when user cancels media selection
+                    .launch(::onMediaSelected)
+        }
     }
 
     private fun startProgress() {
         mContentViewBinding.countTimeProgressView.startCountTimeAnimation()
     }
+
+    private fun onMediaSelected(selectedMediaList: List<UwMediaPickerMediaModel>?) {
+        if (selectedMediaList != null) {
+            val selectedMediaPathList = selectedMediaList.map { it.mediaPath }
+            var intent = Intent()
+            intent.putExtra("path", selectedMediaList[0].mediaPath)
+            setResult(RESULT_OK, intent)
+            finish()
+        } else {
+            Toast.makeText(this, "Unexpected Error", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 
     @SuppressLint("RestrictedApi")
     private fun recordVideo() {
@@ -266,5 +317,19 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
 
     override fun getCameraXConfig(): CameraXConfig {
         return Camera2Config.defaultConfig();
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == ACTION_TAKE_VIDEO && resultCode == RESULT_OK) {
+            val videoUri: Uri = data?.data!!
+            val path = GetPath.getPath(this,videoUri)
+            if (path != null) {
+                var intent = Intent()
+                intent.putExtra("path", path)
+                setResult(RESULT_OK, intent)
+                finish()
+            }
+        }
     }
 }
