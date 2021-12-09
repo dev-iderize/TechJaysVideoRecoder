@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">InAppCamera</string>
+    <string name="record_or_upload_a_image_video">Record or upload a image/video</string>
+</resources>

@@ -1,0 +1,13 @@
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        jcenter()
+        maven { url "https://jitpack.io" }// Warning: this repository is going to shut down soon
+        maven { url "https://jitpack.io" }
+    }
+}
+rootProject.name = "CameraApp"
+include ':app'
+include ':inappcamera'

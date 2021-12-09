@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".InAppCameraActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.camera.view.PreviewView
+            android:id="@+id/previewView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <!--        <Button-->
+        <!--            android:id="@+id/bCapture"-->
+        <!--            android:layout_width="wrap_content"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:visibility="gone"-->
+        <!--            android:layout_alignParentBottom="true"-->
+        <!--            android:layout_marginStart="10dp"-->
+        <!--            android:text="take picture" />-->
+
+
+        <com.sfyc.ctpv.CountTimeProgressView
+            android:id="@+id/countTimeProgressView"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="20dp"
+            app:backgroundColorCenter="@android:color/transparent"
+            app:borderBottomColor="@color/white"
+            app:borderDrawColor="#FAA120"
+            app:borderWidth="5dp"
+            app:clockwise="true"
+            app:countTime="45000"
+            app:markBallColor="#FAA120"
+            app:markBallFlag="true"
+            app:markBallWidth="3dp"
+            app:startAngle="0" />
+
+        <ImageView
+            android:id="@+id/bRecord"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="50dp"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/ic_record_button" />
+
+        <ImageView
+            android:id="@+id/add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="50dp"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="40dp"
+            android:src="@drawable/ic_add_gallery" />
+
+        <ImageView
+            android:id="@+id/flip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginEnd="40dp"
+            android:layout_marginBottom="50dp"
+            android:src="@drawable/ic_switch_camera" />
+
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:id="@+id/back"
+            android:layout_marginStart="25dp"
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="30dp"
+            android:src="@drawable/ic_baseline_arrow_back_ios_24"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:textColor="@color/white"
+            android:layout_marginTop="30dp"
+            android:layout_centerHorizontal="true"
+            android:text="@string/record_or_upload_a_image_video"
+            android:layout_height="wrap_content"/>
+
+    </RelativeLayout>
+</layout>
