@@ -2,17 +2,13 @@ package com.techjays.inappcamera
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.ContentUris
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.media.ThumbnailUtils
 import android.net.Uri
 import android.os.*
-import android.provider.DocumentsContract
-import android.provider.MediaStore
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.camera2.Camera2Config
@@ -88,6 +84,7 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
         mContentViewBinding.bRecord.setOnClickListener {
             if (isRecord) {
                 isRecord = false
+                mContentViewBinding.flip.visibility = View.GONE
                 mContentViewBinding.bRecord.setColorFilter(
                     ContextCompat.getColor(
                         this,
@@ -323,7 +320,7 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == ACTION_TAKE_VIDEO && resultCode == RESULT_OK) {
             val videoUri: Uri = data?.data!!
-            val path = GetPath.getPath(this,videoUri)
+            val path = GetPath.getPath(this, videoUri)
             if (path != null) {
                 var intent = Intent()
                 intent.putExtra("path", path)
