@@ -12,7 +12,6 @@
         android:theme="@style/Theme.Vidrivals">
         <activity
             android:name=".MainActivity"
-            tools:replace="android:theme"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
