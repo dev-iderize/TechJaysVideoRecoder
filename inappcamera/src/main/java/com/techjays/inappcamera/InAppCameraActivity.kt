@@ -154,6 +154,10 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
                     .setCancelCallback { }                    // Will be called when user cancels media selection
                     .launch(::onMediaSelected)
         }
+
+        mContentViewBinding.back.setOnClickListener {
+            finish()
+        }
     }
 
     private fun startProgress() {
