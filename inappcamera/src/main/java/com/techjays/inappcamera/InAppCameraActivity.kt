@@ -23,6 +23,7 @@ import com.anilokcun.uwmediapicker.UwMediaPicker
 import com.anilokcun.uwmediapicker.model.UwMediaPickerMediaModel
 import com.google.common.util.concurrent.ListenableFuture
 import com.techjays.inappcamera.databinding.ActivityInAppCameraBinding
+import com.yashovardhan99.timeit.Stopwatch
 import java.io.File
 import java.util.*
 import java.util.concurrent.ExecutionException
@@ -51,6 +52,7 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
     private var isBack: Boolean = true
     private lateinit var cameraSelector: CameraSelector
     private var lensFacing = CameraSelector.LENS_FACING_BACK
+    private lateinit var stopwatch: Stopwatch
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,6 +68,8 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
 
     @SuppressLint("RestrictedApi")
     fun init() {
+        stopwatch = Stopwatch()
+        stopwatch.setTextView(mContentViewBinding.stopwatchText)
         isRecord = true
         isBack = true
         previewView = mContentViewBinding.previewView
@@ -92,6 +96,7 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
                     ), android.graphics.PorterDuff.Mode.SRC_IN
                 );
                 recordVideo()
+                stopwatch.start()
                 startProgress()
                 handler.postDelayed({
                     isRecord = true
@@ -103,11 +108,12 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
                             R.color.white
                         ), android.graphics.PorterDuff.Mode.SRC_IN
                     );
-                }, 45000)
+                }, 44540)
             } else {
                 handler.removeCallbacksAndMessages(null);
                 isRecord = true
                 videoCapture!!.stopRecording()
+                stopwatch.stop()
                 mContentViewBinding.countTimeProgressView.cancelCountTimeAnimation()
                 mContentViewBinding.bRecord.setColorFilter(
                     ContextCompat.getColor(
@@ -143,7 +149,7 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
                     .setLightStatusBar(true)                           // Is llight status bar enable, default is true
                     .enableImageCompression(true)                // Is image compression enable, default is false
                     .setCompressionMaxWidth(1280F)                // Compressed image's max width px, default is 1280
-                    .setCompressionMaxHeight(720F)                // Compressed image's max height px, default is 720
+                    .setCompressionMaxHeight(720F) // Compressed image's max height px, default is 720
                     .setCompressFormat(Bitmap.CompressFormat.JPEG)        // Compressed image's format, default is JPEG
                     .setCompressionQuality(85)                // Image compression quality, default is 85
                     .setCompressedFileDestinationPath(

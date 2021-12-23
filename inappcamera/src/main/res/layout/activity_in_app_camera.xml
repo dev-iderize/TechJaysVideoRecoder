@@ -82,11 +82,21 @@
 
         <TextView
             android:layout_width="wrap_content"
-            android:textColor="@color/white"
-            android:layout_marginTop="30dp"
+            android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
+            android:layout_marginTop="30dp"
             android:text="@string/record_or_upload_a_image_video"
-            android:layout_height="wrap_content"/>
+            android:textColor="@color/white" />
+
+        <TextView
+            android:id="@+id/stopwatchText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="90dp"
+            android:drawableLeft="@drawable/ic_baseline_fiber_manual_record_24"
+            android:text="00:00:00"
+            android:textColor="@color/white" />
 
     </RelativeLayout>
 </layout>
