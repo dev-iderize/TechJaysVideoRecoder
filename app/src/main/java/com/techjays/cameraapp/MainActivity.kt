@@ -20,6 +20,7 @@ class MainActivity : AppCompatActivity() {
 
         click.setOnClickListener {
             val intent = Intent(this, InAppCameraActivity::class.java)
+            intent.putExtra("video_limit", true)
             startActivityForResult(intent, 5)
         }
 

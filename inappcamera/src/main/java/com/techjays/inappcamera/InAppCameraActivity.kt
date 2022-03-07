@@ -28,6 +28,10 @@ import java.io.File
 import java.util.*
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
+import android.os.Bundle
+
+
+
 
 class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraXConfig.Provider {
     lateinit var mContentViewBinding: ActivityInAppCameraBinding
@@ -53,6 +57,7 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
     private lateinit var cameraSelector: CameraSelector
     private var lensFacing = CameraSelector.LENS_FACING_BACK
     private lateinit var stopwatch: Stopwatch
+    private var isLimit:Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,6 +68,8 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
                 R.layout.activity_in_app_camera
             ) as ActivityInAppCameraBinding
         PermissionCheckers().askAllPermissions(this, mPermission)
+        val bundle = intent.extras
+        isLimit = bundle!!.getBoolean("video_limit")
         init()
     }
 
@@ -97,18 +104,21 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
                 );
                 recordVideo()
                 stopwatch.start()
-                startProgress()
-                handler.postDelayed({
-                    isRecord = true
-                    videoCapture!!.stopRecording()
-                    mContentViewBinding.countTimeProgressView.cancelCountTimeAnimation()
-                    mContentViewBinding.bRecord.setColorFilter(
-                        ContextCompat.getColor(
-                            this,
-                            R.color.white
-                        ), android.graphics.PorterDuff.Mode.SRC_IN
-                    );
-                }, 44540)
+                if (isLimit){
+                    startProgress()
+                    handler.postDelayed({
+                        isRecord = true
+                        videoCapture!!.stopRecording()
+                        mContentViewBinding.countTimeProgressView.cancelCountTimeAnimation()
+                        mContentViewBinding.bRecord.setColorFilter(
+                            ContextCompat.getColor(
+                                this,
+                                R.color.white
+                            ), android.graphics.PorterDuff.Mode.SRC_IN
+                        );
+                    }, 44540)
+                }
+
             } else {
                 handler.removeCallbacksAndMessages(null);
                 isRecord = true
@@ -271,6 +281,7 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
                         "Error saving photo: " + exception.message,
                         Toast.LENGTH_SHORT
                     ).show()
+                    Log.d("ithu",exception.message.toString())
                     Log.d("camera", exception.message.toString())
                 }
             }
