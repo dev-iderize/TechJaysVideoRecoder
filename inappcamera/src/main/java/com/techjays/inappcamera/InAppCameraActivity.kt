@@ -2,13 +2,24 @@ package com.techjays.inappcamera
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.app.Dialog
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
-import android.os.*
+import android.os.Bundle
+import android.os.Environment
+import android.os.Handler
+import android.os.Looper
+import android.text.TextUtils
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
+import android.view.Window
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.camera2.Camera2Config
@@ -22,21 +33,22 @@ import androidx.lifecycle.LifecycleOwner
 import com.anilokcun.uwmediapicker.UwMediaPicker
 import com.anilokcun.uwmediapicker.model.UwMediaPickerMediaModel
 import com.google.common.util.concurrent.ListenableFuture
+import com.simform.videooperations.*
 import com.techjays.inappcamera.databinding.ActivityInAppCameraBinding
 import com.yashovardhan99.timeit.Stopwatch
 import java.io.File
 import java.util.*
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
-import android.os.Bundle
-
-
 
 
 class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraXConfig.Provider {
     lateinit var mContentViewBinding: ActivityInAppCameraBinding
     private var mVideoUri: Uri? = null
     var ACTION_TAKE_VIDEO = 99
+    private val uris = mutableListOf<Uri>()
+    lateinit var activity:Activity
+    private var progressDialog: Dialog? = null
     private var mPermission =
         arrayOf(
             Manifest.permission.CAMERA,
@@ -75,6 +87,7 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
 
     @SuppressLint("RestrictedApi")
     fun init() {
+        activity = this
         stopwatch = Stopwatch()
         stopwatch.setTextView(mContentViewBinding.stopwatchText)
         isRecord = true
@@ -182,11 +195,12 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
 
     private fun onMediaSelected(selectedMediaList: List<UwMediaPickerMediaModel>?) {
         if (selectedMediaList != null) {
-            val selectedMediaPathList = selectedMediaList.map { it.mediaPath }
-            var intent = Intent()
-            intent.putExtra("path", selectedMediaList[0].mediaPath)
-            setResult(RESULT_OK, intent)
-            finish()
+            /* val selectedMediaPathList = selectedMediaList.map { it.mediaPath }
+             var intent = Intent()
+             intent.putExtra("path", selectedMediaList[0].mediaPath)
+             setResult(RESULT_OK, intent)
+             finish()*/
+            com(selectedMediaList[0].mediaPath)
         } else {
             Toast.makeText(this, "Unexpected Error", Toast.LENGTH_SHORT).show()
         }
@@ -225,10 +239,11 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
                     getExecutor()!!,
                     object : VideoCapture.OnVideoSavedCallback {
                         override fun onVideoSaved(outputFileResults: VideoCapture.OutputFileResults) {
-                            var intent = Intent()
+                           /* var intent = Intent()
                             intent.putExtra("path", vidFilePath)
                             setResult(RESULT_OK, intent)
-                            finish()
+                            finish()*/
+                            com(vidFilePath)
                         }
 
                         override fun onError(
@@ -350,4 +365,68 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
             }
         }
     }
+
+    fun com(videoPath:String){
+        showProgressDialog(this,false)
+        val dir = File(getExternalFilesDir(Environment.DIRECTORY_MOVIES).toString())
+        if (!dir.exists()) {
+            dir.mkdirs()
+        }
+        var extension=".mp4"
+
+        val dest = File(dir.path + File.separator + Common.OUT_PUT_DIR + System.currentTimeMillis().div(1000L) + extension)
+
+
+        val ffmpegQueryExtension = FFmpegQueryExtension()
+        var uri = Uri.fromFile(File(videoPath))
+        val outputPath = dest.absolutePath
+        val query = ffmpegQueryExtension.compressor(uri.toString(), 1080, 1920 ,outputPath )
+        CallBackOfQuery().callQuery(query, object : FFmpegCallBack {
+            override fun process(logMessage: LogMessage) {
+                Log.d("process on",logMessage.toString())
+            }
+
+            @SuppressLint("SetTextI18n")
+            override fun success() {
+                Log.d("ffg video out",outputPath)
+                hideProgressDialog()
+                var intent = Intent()
+                intent.putExtra("path", outputPath)
+                setResult(RESULT_OK, intent)
+                finish()
+            }
+
+            override fun cancel() {
+
+            }
+
+            override fun failed() {
+
+            }
+        })
+    }
+
+    @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
+    fun showProgressDialog(context: Context, isCancelable: Boolean) {
+        hideProgressDialog()
+        progressDialog = Dialog(context)
+        val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val view = inflater.inflate(R.layout.dialog_progress_custom, null)
+        progressDialog!!.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        progressDialog!!.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        progressDialog!!.setContentView(view)
+        progressDialog!!.setCancelable(isCancelable)
+        progressDialog!!.show()
+    }
+
+    fun hideProgressDialog() {
+        try {
+            if (progressDialog != null && progressDialog!!.isShowing) {
+                progressDialog!!.dismiss()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
 }
