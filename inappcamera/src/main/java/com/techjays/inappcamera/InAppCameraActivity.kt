@@ -393,9 +393,9 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
             @SuppressLint("SetTextI18n")
             override fun success() {
                 Log.d("ffg video out",outputPath)
-                var des:String = getVideoFilePath().toString()
+                val output = Common.getFilePath(this@InAppCameraActivity, Common.VIDEO)
 
-                Mp4Composer(outputPath, des)
+                Mp4Composer(outputPath, output)
                     .rotation(Rotation.NORMAL)
                     .size(240 , 480)
                     .fillMode(FillMode.PRESERVE_ASPECT_FIT)
@@ -409,7 +409,7 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
                         }
 
                         override fun onCompleted() {
-                            val uri:Uri = Uri.fromFile(File(des))
+                            val uri:Uri = Uri.fromFile(File(output))
                             hideProgressDialog()
                             val intent = Intent()
                             intent.putExtra("path", uri.toString())
