@@ -1,22 +1,25 @@
 package com.techjays.cameraapp
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.TextView
-import com.techjays.inappcamera.InAppCameraActivity
 import android.util.Log
-
+import android.widget.TextView
+import android.widget.VideoView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.net.toUri
+import com.techjays.inappcamera.InAppCameraActivity
 
 
 class MainActivity : AppCompatActivity() {
     lateinit var click: TextView
+    lateinit var videoView: VideoView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         click = findViewById(R.id.click)
+        videoView = findViewById(R.id.videoset)
 
         click.setOnClickListener {
             val intent = Intent(this, InAppCameraActivity::class.java)
@@ -32,6 +35,10 @@ class MainActivity : AppCompatActivity() {
         {
             if (resultCode === RESULT_OK) { // Activity.RESULT_OK
                 Log.d("check",data!!.getStringExtra("path")!!)
+                var vidpath = data!!.getStringExtra("path")!!
+                videoView.setVideoURI(vidpath.toUri())
+                videoView.start()
+
             }
         }
     }

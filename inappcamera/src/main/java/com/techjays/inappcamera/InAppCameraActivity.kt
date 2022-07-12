@@ -10,12 +10,12 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
 import android.os.Looper
-import android.text.TextUtils
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -32,12 +32,16 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.LifecycleOwner
 import com.anilokcun.uwmediapicker.UwMediaPicker
 import com.anilokcun.uwmediapicker.model.UwMediaPickerMediaModel
+import com.daasuu.mp4compose.FillMode
+import com.daasuu.mp4compose.Rotation
+import com.daasuu.mp4compose.composer.Mp4Composer
 import com.google.common.util.concurrent.ListenableFuture
 import com.simform.videooperations.*
 import com.techjays.inappcamera.databinding.ActivityInAppCameraBinding
 import com.yashovardhan99.timeit.Stopwatch
 import java.io.File
 import java.util.*
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
 
@@ -373,13 +377,13 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
             dir.mkdirs()
         }
         var extension=".mp4"
+        val outputPath = Common.getFilePath(this, Common.VIDEO)
 
         val dest = File(dir.path + File.separator + Common.OUT_PUT_DIR + System.currentTimeMillis().div(1000L) + extension)
 
 
         val ffmpegQueryExtension = FFmpegQueryExtension()
-        var uri = Uri.fromFile(File(videoPath))
-        val outputPath = dest.absolutePath
+        val uri = Uri.fromFile(File(videoPath))
         val query = ffmpegQueryExtension.compressor(uri.toString(), 1080, 1920 ,outputPath )
         CallBackOfQuery().callQuery(query, object : FFmpegCallBack {
             override fun process(logMessage: LogMessage) {
@@ -389,11 +393,39 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
             @SuppressLint("SetTextI18n")
             override fun success() {
                 Log.d("ffg video out",outputPath)
-                hideProgressDialog()
-                var intent = Intent()
-                intent.putExtra("path", outputPath)
-                setResult(RESULT_OK, intent)
-                finish()
+                var des:String = getVideoFilePath().toString()
+
+                Mp4Composer(outputPath, des)
+                    .rotation(Rotation.NORMAL)
+                    .size(240 , 480)
+                    .fillMode(FillMode.PRESERVE_ASPECT_FIT)
+                    .listener(object : Mp4Composer.Listener {
+                        override fun onProgress(progress: Double) {
+
+                        }
+
+                        override fun onCurrentWrittenVideoTime(timeUs: Long) {
+
+                        }
+
+                        override fun onCompleted() {
+                            val uri:Uri = Uri.fromFile(File(des))
+                            hideProgressDialog()
+                            val intent = Intent()
+                            intent.putExtra("path", uri.toString())
+                            setResult(RESULT_OK, intent)
+                            finish()
+                        }
+
+                        override fun onCanceled() {
+
+                        }
+
+                        override fun onFailed(exception: java.lang.Exception) {
+
+                        }
+                    })
+                    .start()
             }
 
             override fun cancel() {
@@ -404,6 +436,20 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
 
             }
         })
+
+
+    }
+
+    fun getVideoFilePath(): String? {
+        val movieDir = File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                .toString()
+        )
+        if (!movieDir.exists()) movieDir.mkdir()
+        val date = Date()
+        val timestamp = date.time.toString()
+        vidFilePath = movieDir.absolutePath + "/" + timestamp + ".mp4"
+        return vidFilePath
     }
 
     @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
