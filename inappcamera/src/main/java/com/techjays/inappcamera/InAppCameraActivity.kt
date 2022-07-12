@@ -372,16 +372,7 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
 
     fun com(videoPath:String){
         showProgressDialog(this,false)
-        val dir = File(getExternalFilesDir(Environment.DIRECTORY_MOVIES).toString())
-        if (!dir.exists()) {
-            dir.mkdirs()
-        }
-        var extension=".mp4"
         val outputPath = Common.getFilePath(this, Common.VIDEO)
-
-        val dest = File(dir.path + File.separator + Common.OUT_PUT_DIR + System.currentTimeMillis().div(1000L) + extension)
-
-
         val ffmpegQueryExtension = FFmpegQueryExtension()
         val uri = Uri.fromFile(File(videoPath))
         val query = ffmpegQueryExtension.compressor(uri.toString(), 1080, 1920 ,outputPath )
@@ -409,10 +400,10 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
                         }
 
                         override fun onCompleted() {
-                            val uri:Uri = Uri.fromFile(File(output))
+                          /*  val uri:Uri = Uri.fromFile(File(output))*/
                             hideProgressDialog()
                             val intent = Intent()
-                            intent.putExtra("path", uri.toString())
+                            intent.putExtra("path", outputPath)
                             setResult(RESULT_OK, intent)
                             finish()
                         }
