@@ -13,6 +13,7 @@
     <application>
         <activity
             android:name=".InAppCameraActivity"
+            android:screenOrientation="portrait"
             android:requestLegacyExternalStorage="true"
             android:exported="true" >
         </activity>
