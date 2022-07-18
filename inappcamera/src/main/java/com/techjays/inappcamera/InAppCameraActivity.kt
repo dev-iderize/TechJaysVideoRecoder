@@ -127,13 +127,14 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
                         isRecord = true
                         videoCapture!!.stopRecording()
                         mContentViewBinding.countTimeProgressView.cancelCountTimeAnimation()
+                        stopwatch.stop()
                         mContentViewBinding.bRecord.setColorFilter(
                             ContextCompat.getColor(
                                 this,
                                 R.color.white
                             ), android.graphics.PorterDuff.Mode.SRC_IN
                         );
-                    }, 44540)
+                    }, 45100)
                 }
 
             } else {
