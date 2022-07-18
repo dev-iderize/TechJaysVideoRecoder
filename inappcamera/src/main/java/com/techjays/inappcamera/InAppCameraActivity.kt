@@ -134,7 +134,7 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
                                 R.color.white
                             ), android.graphics.PorterDuff.Mode.SRC_IN
                         );
-                    }, 45100)
+                    }, 45500)
                 }
 
             } else {
