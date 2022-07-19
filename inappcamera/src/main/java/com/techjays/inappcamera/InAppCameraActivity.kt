@@ -10,7 +10,6 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -40,8 +39,11 @@ import com.simform.videooperations.*
 import com.techjays.inappcamera.databinding.ActivityInAppCameraBinding
 import com.yashovardhan99.timeit.Stopwatch
 import java.io.File
+import java.io.IOException
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.*
-import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
 
@@ -376,63 +378,79 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
         val outputPath = Common.getFilePath(this, Common.VIDEO)
         val ffmpegQueryExtension = FFmpegQueryExtension()
         val uri = Uri.fromFile(File(videoPath))
-        val query = ffmpegQueryExtension.compressor(uri.toString(), 1080, 1920 ,outputPath )
-        CallBackOfQuery().callQuery(query, object : FFmpegCallBack {
-            override fun process(logMessage: LogMessage) {
-                Log.d("process on",logMessage.toString())
+
+        try {
+            val file = File(videoPath)
+            val size = file.length()
+            Log.d("SizeOfVideo",size.toString())
+            if (size > 10000000) {
+                val query = ffmpegQueryExtension.compressor(uri.toString(), 1080, 1350, outputPath)
+                CallBackOfQuery().callQuery(query, object : FFmpegCallBack {
+                    override fun process(logMessage: LogMessage) {
+                        Log.d("process on", logMessage.toString())
+                    }
+
+                    @SuppressLint("SetTextI18n")
+                    override fun success() {
+                        Log.d("ffg video out", outputPath)
+                        val output = Common.getFilePath(this@InAppCameraActivity, Common.VIDEO)
+
+                        Mp4Composer(outputPath, output)
+                            .rotation(Rotation.NORMAL)
+                            .size(1080, 1350)
+                            .fillMode(FillMode.PRESERVE_ASPECT_FIT)
+                            .listener(object : Mp4Composer.Listener {
+                                override fun onProgress(progress: Double) {
+
+                                }
+
+                                override fun onCurrentWrittenVideoTime(timeUs: Long) {
+
+                                }
+
+                                override fun onCompleted() {
+                                    /*  val uri:Uri = Uri.fromFile(File(output))*/
+                                    hideProgressDialog()
+                                    val intent = Intent()
+                                    intent.putExtra("path", outputPath)
+                                    setResult(RESULT_OK, intent)
+                                    finish()
+                                }
+
+                                override fun onCanceled() {
+
+                                }
+
+                                override fun onFailed(exception: java.lang.Exception) {
+
+                                }
+                            })
+                            .start()
+                    }
+
+                    override fun cancel() {
+
+                    }
+
+                    override fun failed() {
+
+                    }
+                })
+            } else{
+                hideProgressDialog()
+                val intent = Intent()
+                intent.putExtra("path", videoPath)
+                setResult(RESULT_OK, intent)
+                finish()
             }
 
-            @SuppressLint("SetTextI18n")
-            override fun success() {
-                Log.d("ffg video out",outputPath)
-                val output = Common.getFilePath(this@InAppCameraActivity, Common.VIDEO)
-
-                Mp4Composer(outputPath, output)
-                    .rotation(Rotation.NORMAL)
-                    .size(240 , 480)
-                    .fillMode(FillMode.PRESERVE_ASPECT_FIT)
-                    .listener(object : Mp4Composer.Listener {
-                        override fun onProgress(progress: Double) {
-
-                        }
-
-                        override fun onCurrentWrittenVideoTime(timeUs: Long) {
-
-                        }
-
-                        override fun onCompleted() {
-                          /*  val uri:Uri = Uri.fromFile(File(output))*/
-                            hideProgressDialog()
-                            val intent = Intent()
-                            intent.putExtra("path", outputPath)
-                            setResult(RESULT_OK, intent)
-                            finish()
-                        }
-
-                        override fun onCanceled() {
-
-                        }
-
-                        override fun onFailed(exception: java.lang.Exception) {
-
-                        }
-                    })
-                    .start()
-            }
-
-            override fun cancel() {
-
-            }
-
-            override fun failed() {
-
-            }
-        })
-
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
 
     }
 
-    fun getVideoFilePath(): String? {
+  /*  fun getVideoFilePath(): String? {
         val movieDir = File(
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
                 .toString()
@@ -443,7 +461,7 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
         vidFilePath = movieDir.absolutePath + "/" + timestamp + ".mp4"
         return vidFilePath
     }
-
+*/
     @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
     fun showProgressDialog(context: Context, isCancelable: Boolean) {
         hideProgressDialog()
