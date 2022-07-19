@@ -384,7 +384,7 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
             val size = file.length()
             Log.d("SizeOfVideo",size.toString())
             if (size > 10000000) {
-                val query = ffmpegQueryExtension.compressor(uri.toString(), 1080, 1350, outputPath)
+                val query = ffmpegQueryExtension.compressor(uri.toString(), 1080, 1920, outputPath)
                 CallBackOfQuery().callQuery(query, object : FFmpegCallBack {
                     override fun process(logMessage: LogMessage) {
                         Log.d("process on", logMessage.toString())
@@ -397,7 +397,7 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
 
                         Mp4Composer(outputPath, output)
                             .rotation(Rotation.NORMAL)
-                            .size(1080, 1350)
+                            .size(1080, 1920)
                             .fillMode(FillMode.PRESERVE_ASPECT_FIT)
                             .listener(object : Mp4Composer.Listener {
                                 override fun onProgress(progress: Double) {
