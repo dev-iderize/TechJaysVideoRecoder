@@ -73,7 +73,7 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
     private var handler = Handler(Looper.getMainLooper())
     private var isBack: Boolean = true
     private lateinit var cameraSelector: CameraSelector
-    private var lensFacing = CameraSelector.LENS_FACING_BACK
+    private var lensFacing = CameraSelector.LENS_FACING_FRONT
     private lateinit var stopwatch: Stopwatch
     private var isLimit:Boolean = false
 
@@ -97,13 +97,13 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
         stopwatch = Stopwatch()
         stopwatch.setTextView(mContentViewBinding.stopwatchText)
         isRecord = true
-        isBack = true
+        isBack = false
         previewView = mContentViewBinding.previewView
         cameraProviderFuture = ProcessCameraProvider.getInstance(this)
         cameraProviderFuture!!.addListener(Runnable {
             try {
                 val cameraProvider = cameraProviderFuture!!.get()
-                startCameraX(cameraProvider, CameraSelector.LENS_FACING_BACK)
+                startCameraX(cameraProvider, CameraSelector.LENS_FACING_FRONT)
             } catch (e: ExecutionException) {
                 e.printStackTrace()
             } catch (e: InterruptedException) {
