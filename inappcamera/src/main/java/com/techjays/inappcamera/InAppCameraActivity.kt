@@ -10,6 +10,7 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -40,9 +41,6 @@ import com.techjays.inappcamera.databinding.ActivityInAppCameraBinding
 import com.yashovardhan99.timeit.Stopwatch
 import java.io.File
 import java.io.IOException
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
 import java.util.*
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
@@ -382,9 +380,16 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
         try {
             val file = File(videoPath)
             val size = file.length()
+            val metaRetriever = MediaMetadataRetriever()
+            metaRetriever.setDataSource(videoPath)
+            val height =
+                metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)!!.toInt()
+            val width =
+                metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)!!.toInt()
+
             Log.d("SizeOfVideo",size.toString())
-            if (size > 10000000) {
-                val query = ffmpegQueryExtension.compressor(uri.toString(), 1080, 1920, outputPath)
+            if (size > 10000240) {
+                val query = ffmpegQueryExtension.compressor(uri.toString(), width, height, outputPath)
                 CallBackOfQuery().callQuery(query, object : FFmpegCallBack {
                     override fun process(logMessage: LogMessage) {
                         Log.d("process on", logMessage.toString())
@@ -397,7 +402,7 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
 
                         Mp4Composer(outputPath, output)
                             .rotation(Rotation.NORMAL)
-                            .size(1080, 1920)
+                            .size(width, height)
                             .fillMode(FillMode.PRESERVE_ASPECT_FIT)
                             .listener(object : Mp4Composer.Listener {
                                 override fun onProgress(progress: Double) {
