@@ -403,7 +403,7 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
                         Mp4Composer(outputPath, output)
                             .rotation(Rotation.NORMAL)
                             .size(width, height)
-                            .fillMode(FillMode.PRESERVE_ASPECT_FIT)
+                            .fillMode(FillMode.PRESERVE_ASPECT_CROP)
                             .listener(object : Mp4Composer.Listener {
                                 override fun onProgress(progress: Double) {
 
