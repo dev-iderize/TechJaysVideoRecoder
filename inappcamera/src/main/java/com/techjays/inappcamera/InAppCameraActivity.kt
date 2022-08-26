@@ -392,12 +392,19 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
         try {
             val file = File(videoPath)
             val size = file.length()
-            val metaRetriever = MediaMetadataRetriever()
+            /*val metaRetriever = MediaMetadataRetriever()
             metaRetriever.setDataSource(videoPath)
             val height =
                 metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)!!.toInt()
             val width =
-                metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)!!.toInt()
+                metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)!!.toInt()*/
+
+            val mRetriever = MediaMetadataRetriever()
+            mRetriever.setDataSource(videoPath)
+            val frame = mRetriever.frameAtTime
+            val width = frame!!.width
+            val height = frame!!.height
+
 
             Log.d("SizeOfVideo",size.toString())
             Log.d("SizeOfVideo",height.toString() +" x "+width.toString())
