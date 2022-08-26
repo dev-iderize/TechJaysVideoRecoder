@@ -7,6 +7,7 @@ import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -20,6 +21,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.Window
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.camera2.Camera2Config
@@ -77,6 +79,7 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        adjustFontScale(getResources().getConfiguration());
         setContentView(R.layout.activity_in_app_camera)
         mContentViewBinding =
             DataBindingUtil.setContentView(
@@ -87,6 +90,15 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
         val bundle = intent.extras
         isLimit = bundle!!.getBoolean("video_limit")
         init()
+    }
+
+    fun adjustFontScale(configuration: Configuration) {
+        configuration.fontScale = 1.0.toFloat()
+        val metrics = resources.displayMetrics
+        val wm = getSystemService(WINDOW_SERVICE) as WindowManager
+        wm.defaultDisplay.getMetrics(metrics)
+        metrics.scaledDensity = configuration.fontScale * metrics.density
+        baseContext.resources.updateConfiguration(configuration, metrics)
     }
 
     @SuppressLint("RestrictedApi")
@@ -388,6 +400,7 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
                 metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)!!.toInt()
 
             Log.d("SizeOfVideo",size.toString())
+            Log.d("SizeOfVideo",height.toString() +" x "+width.toString())
             if (size > 10000240) {
                 val query = ffmpegQueryExtension.compressor(uri.toString(), width, height, outputPath)
                 CallBackOfQuery().callQuery(query, object : FFmpegCallBack {
@@ -403,7 +416,7 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
                         Mp4Composer(outputPath, output)
                             .rotation(Rotation.NORMAL)
                             .size(width, height)
-                            .fillMode(FillMode.PRESERVE_ASPECT_CROP)
+                            .fillMode(FillMode.PRESERVE_ASPECT_FIT)
                             .listener(object : Mp4Composer.Listener {
                                 override fun onProgress(progress: Double) {
 
