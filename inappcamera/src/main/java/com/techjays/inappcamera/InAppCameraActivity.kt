@@ -18,6 +18,7 @@ import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.util.Size
 import android.view.LayoutInflater
 import android.view.View
 import android.view.Window
@@ -337,11 +338,13 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
         // Image capture use case
         imageCapture = ImageCapture.Builder()
             .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+            .setTargetResolution(Size(1080, 1920))
             .build()
 
         // Video capture use case
         videoCapture = VideoCapture.Builder()
             .setVideoFrameRate(30)
+            .setTargetResolution(Size(1280, 720))
             .build()
 
         // Image analysis use case
