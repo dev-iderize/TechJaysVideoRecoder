@@ -344,7 +344,7 @@ class InAppCameraActivity : AppCompatActivity(), ImageAnalysis.Analyzer, CameraX
         // Video capture use case
         videoCapture = VideoCapture.Builder()
             .setVideoFrameRate(30)
-            .setTargetResolution(Size(1280, 720))
+            .setTargetResolution(Size(680, 1080))
             .build()
 
         // Image analysis use case
